@@ -17,7 +17,6 @@ router.get('/', (req, res) => {
       {
         model: Tag,
         attributes: ['id', 'tag_name'],
-        through: ProductTag
       }
     ]
   })
@@ -32,10 +31,7 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
   // find a single product by its `id`
   // be sure to include its associated Category and Tag data
-  Product.findByPk({
-    where: {
-      id: req.params.id
-    },
+  Product.findByPk(req.params.id, {
     attributes: ['id', 'product_name', 'price', 'stock', 'category_id'],
     include: [
       {
@@ -74,7 +70,7 @@ router.post('/', (req, res) => {
   Product.create(req.body)
     .then((product) => {
       // if there's product tags, we need to create pairings to bulk create in the ProductTag model
-      if (req.body.tagIds.length) {
+      if (Array.isArray(req.body.tagIds) && req.body.tagIds.length) {
         const productTagIdArr = req.body.tagIds.map((tag_id) => {
           return {
             product_id: product.id,
@@ -139,12 +135,12 @@ router.delete('/:id', (req, res) => {
       id: req.params.id,
     },
   })
-    .then((dbProductData) => {
-      if (!dbProductData) {
+    .then((product) => {
+      if (!product) {
         res.status(404).json({ message: "No product found with this id" });
         return;
       }
-      res.json(dbProductData);
+      res.json(product);
     })
     .catch((err) => {
       console.error(err);

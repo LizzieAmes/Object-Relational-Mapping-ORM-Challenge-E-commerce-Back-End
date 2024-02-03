@@ -8,7 +8,6 @@ router.get('/', (req, res) => {
       {
         model: Product,
         attributes: ['id', 'product_name', 'price', 'stock', 'category_id'],
-        through: ProductTag
       }
     ]
   })
@@ -26,7 +25,6 @@ router.get('/:id', (req, res) => {
       {
         model: Product,
         attributes: ['id', 'product_name', 'price', 'stock', 'category_id'],
-        through: ProductTag
       }
     ]
   })
@@ -57,11 +55,7 @@ router.post('/', (req, res) => {
 
 // PUT to update a tag's name by its ID
 router.put('/:id', (req, res) => {
-  Tag.update(
-    {
-      tag_name: req.body.tag_name
-    },
-    {
+  Tag.update(req.body, {
       where: {
         id: req.params.id
       }
@@ -87,8 +81,8 @@ router.delete('/:id', (req, res) => {
       id: req.params.id
     }
   })
-  .then(deletedRows => {
-    if (deletedRows === 0) {
+  .then(tag => {
+    if (!tag) {
       res.status(404).json({ message: 'No tag found with this ID' });
       return;
     }
